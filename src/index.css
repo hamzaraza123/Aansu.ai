@@ -1,0 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Special+Elite&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-mourn-black: #074B88;
+  --color-mourn-charcoal: #053763;
+  --color-mourn-red-dark: #03223e;
+  --color-mourn-red-blood: #053763;
+  --color-mourn-red-bright: #0a68bd;
+  --color-mourn-gold: #ffffff;
+  --color-mourn-gold-dark: #e0e0e0;
+  --font-serif-vintage: 'Playfair Display', Georgia, serif;
+  --font-heading-vintage: 'Cinzel Decorative', 'Cinzel', serif;
+  --font-gothic: 'Special Elite', monospace;
+}
+
+/* Custom styles for Aansu.ai styling system */
+
+body {
+  background-color: var(--color-mourn-black);
+  color: #ffffff;
+  font-family: var(--font-serif-vintage);
+}
+
+/* Custom Scrollbar for Mehfil scroll area */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-mourn-red-bright) rgba(0, 0, 0, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-mourn-red-bright);
+  border: 1px solid var(--color-mourn-red-dark);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-mourn-gold-dark);
+}
+
+/* Thicker scrollbar in mobile view for the Mehfil tab */
+@media (max-width: 768px) {
+  .custom-scrollbar {
+    scrollbar-width: auto;
+  }
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.15);
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-mourn-red-bright);
+    border: 2px solid var(--color-mourn-red-dark);
+    border-radius: 6px;
+  }
+}
+
+/* Heart-wrenching flicker animation to simulate flickering candlelight */
+@keyframes flicker {
+  0%, 100% {
+    opacity: 0.85;
+    filter: drop-shadow(0 0 4px rgba(184, 12, 9, 0.4));
+  }
+  50% {
+    opacity: 0.6;
+    filter: drop-shadow(0 0 1px rgba(184, 12, 9, 0.1));
+  }
+  75% {
+    opacity: 0.95;
+    filter: drop-shadow(0 0 6px rgba(184, 12, 9, 0.65));
+  }
+}
+
+.candle-glow {
+  animation: flicker 4s infinite alternate ease-in-out;
+}
+
+/* Tear dripping animation for the loading states */
+@keyframes drip {
+  0% {
+    transform: translateY(-10px) scale(0.6);
+    opacity: 0;
+  }
+  20% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(35px) scale(0.9);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(45px) scale(0);
+    opacity: 0;
+  }
+}
+
+.tear-drip {
+  display: inline-block;
+  animation: drip 1.8s infinite cubic-bezier(0.4, 0, 0.6, 1);
+  color: var(--color-mourn-gold);
+}
+
+/* Beautiful fading-in entries */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s forwards cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Glowing text drop shadow style for titles and poems */
+.text-shadow-glow {
+  text-shadow: 0 0 8px rgba(245, 235, 230, 0.2);
+}
