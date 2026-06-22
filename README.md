@@ -8,7 +8,7 @@ Aansu.ai is a "gloriously useless" hackathon masterpiece designed to elevate tri
 ---
 
 ## 🔗 Live Application
-🌐 **Visit Aansu.ai:** [placeholder](placeholder)
+🌐 **Visit:** [Aansu.ai](https://aansu-ai.onrender.com/)
 
 ---
 
