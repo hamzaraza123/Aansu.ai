@@ -68,7 +68,7 @@ In a world that demands constant productivity and optimism, Aansu.ai provides a 
 * **Mehfil Feed (Community Feed):** A shared, paginated feed where users can browse, weep over, and comment on public tragedies.
 * **Weeping & Reacting:** Users can "Weep" (upvote) public posts or add custom emoji reactions (😂, 😢, 🙏, ❤️) to show solidarity with their fellow mourners.
 * **Tragedy Card Sharing:** Instantly generates a clean, downloadable screenshot card of your elegy. 
-  * Supports the native **Web Share API** on mobile devices (for quick sharing to WhatsApp Status or Instagram Stories).
+  * Supports the native **Web Share API** on mobile devices (for quick sharing to WhatsApp Chats, Status, Instagram DM, Story, etc).
   * Auto-downloads a high-resolution PNG on PC.
 * **Self-Owned Post Deletion:** Tracks posts published by the user locally via `localStorage` ownership tracking, rendering a custom, in-app delete modal popup to let you wipe your own posts from MongoDB.
 * **Sitar Ambient Music:** Loopable background sitar audio (`sitar.mp3`) with an inline volume control button to set the perfect melancholic mood.
