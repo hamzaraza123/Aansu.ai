@@ -167,6 +167,11 @@ if (envBannedWords) {
   }
 }
 
+// GET /api/health: Lightweight health check endpoint to prevent cold starts and verify server status
+app.get("/api/health", (req, res) => {
+  res.status(200).send("ok");
+});
+
 // Middlewares
 app.use(cors());
 app.use(express.json());
@@ -364,11 +369,6 @@ app.post("/api/generate", elegyLimiter, async (req, res) => {
       error: `Server-side Elegy failure: ${error.message}`
     });
   }
-});
-
-// GET /api/health: Lightweight health check endpoint to prevent cold starts and verify server status
-app.get("/api/health", (req, res) => {
-  res.status(200).json({ status: "ok", timestamp: new Date() });
 });
 
 // GET /api/feed: Retrieves latest tragedies with pagination support

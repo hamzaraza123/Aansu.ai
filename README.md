@@ -149,7 +149,7 @@ To automate deployments, a continuous integration and deployment pipeline is set
 ## ⏰ Preventing Cold Starts (Keep-Alive)
 Render's free tier spins down web services after 15 minutes of inactivity, causing "cold start" delays when users visit. To prevent this:
 * **Health Endpoint:** A lightweight GET `/api/health` route is added in [server.js](file:///C:/Users/lenovo/Downloads/Projects/Aansu.ai/aansu-ai/server.js) that returns a database-free `200 OK` status.
-* **Keep-Alive:** Scheduled external cron jobs (like `cron-job.org` or GitHub Actions) ping this endpoint every 10 minutes, keeping the server instance warm and responsive.
+* **Keep-Alive:** Scheduled external cron jobs (`cron-job.org`) ping this endpoint every 10 minutes, keeping the server instance warm and responsive.
 
 ---
 
