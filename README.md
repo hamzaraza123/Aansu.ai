@@ -21,6 +21,9 @@ Aansu.ai is a "gloriously useless" hackathon masterpiece designed to elevate tri
 6. [Security & Filter Architecture](#-security--filter-architecture)
 7. [Database Architecture & Pagination](#-database-architecture--pagination)
 8. [Responsive Design](#%EF%B8%8F-responsive-design)
+9. [CI/CD Pipeline & Render Deployment](#-cicd-pipeline--render-deployment)
+10. [Preventing Cold Starts (Keep-Alive)](#-preventing-cold-starts-keep-alive)
+11. [Background Audio Playback](#-background-audio-playback)
 
 ---
 
@@ -133,3 +136,25 @@ Aansu.ai implements a highly effective, hybrid, two-layer validation system:
 The website features a centered vertical container layout:
 * **Desktop:** Renders as a sleek, bordered, mobile-frame simulator with a dark background video that makes the vintage parchment cards pop.
 * **Mobile:** Expands to fill 100% of the screen, providing a native, app-like feel with a fixed sticky header and footer navigation bar for perfect usability on smartphones.
+
+---
+
+## 🔄 CI/CD Pipeline & Render Deployment
+To automate deployments, a continuous integration and deployment pipeline is set up using GitHub Actions:
+* **Workflow:** Push triggers defined in [.github/workflows/deploy.yml](file:///C:/Users/lenovo/Downloads/Projects/Aansu.ai/aansu-ai/.github/workflows/deploy.yml) check out the codebase, set up Node.js, install dependencies, run code lints, and perform build tests.
+* **Auto-Deploy trigger:** Upon successful build and lint runs, the workflow triggers a secure deployment hook to redeploy the live Render application.
+
+---
+
+## ⏰ Preventing Cold Starts (Keep-Alive)
+Render's free tier spins down web services after 15 minutes of inactivity, causing "cold start" delays when users visit. To prevent this:
+* **Health Endpoint:** A lightweight GET `/api/health` route is added in [server.js](file:///C:/Users/lenovo/Downloads/Projects/Aansu.ai/aansu-ai/server.js) that returns a database-free `200 OK` status.
+* **Keep-Alive:** Scheduled external cron jobs (like `cron-job.org` or GitHub Actions) ping this endpoint every 10 minutes, keeping the server instance warm and responsive.
+
+---
+
+## 🎵 Background Audio Playback
+Background sitar music (`sitar.mp3`) is optimized for cross-browser, cross-device compatibility:
+* **Autoplay Compliance:** Since modern browsers restrict unmuted audio from autoplaying without user interaction, the audio player binds listeners to `click`, `touchend`, and `keydown` events on the `document`.
+* **Mobile Support:** Using `touchend` and document-level propagation fixes iOS Safari limitations where touchstart is blocked and standard click events fail to bubble up on non-interactive background elements.
+
