@@ -99,7 +99,7 @@ function App() {
 
   // Background Audio loop logic
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
 
   useEffect(() => {
     let audio: HTMLAudioElement | null = null;

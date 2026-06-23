@@ -155,6 +155,6 @@ Render's free tier spins down web services after 15 minutes of inactivity, causi
 
 ## 🎵 Background Audio Playback
 Background sitar music (`sitar.mp3`) is optimized for cross-browser, cross-device compatibility:
-* **Autoplay Compliance:** Since modern browsers restrict unmuted audio from autoplaying without user interaction, the audio player binds listeners to `click`, `touchend`, and `keydown` events on the `document`.
-* **Mobile Support:** Using `touchend` and document-level propagation fixes iOS Safari limitations where touchstart is blocked and standard click events fail to bubble up on non-interactive background elements.
+* **Autoplay Compliance:** Since modern browsers (especially on mobile devices) restrict unmuted audio from autoplaying without direct user interaction, the application starts in a **muted** state by default.
+* **Mobile Support:** When the user clicks the mute/unmute toggle button, the explicit user click/tap gesture provides the necessary permission for the browser to unlock and play the audio. If the initial play attempt fails, document-level gesture listeners (`click`, `touchend`, `keydown`) act as a fallback to trigger playback on the next interaction.
 
