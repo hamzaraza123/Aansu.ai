@@ -108,14 +108,17 @@ function App() {
     const handleGesture = () => {
       if (!active || isMuted) return;
       if (audio) {
-        audio.play().catch(() => {});
+        audio.play().catch((e) => {
+          console.warn("Background audio playback failed on user gesture:", e);
+        });
       }
       cleanupGesture();
     };
 
     const cleanupGesture = () => {
-      window.removeEventListener("click", handleGesture);
-      window.removeEventListener("touchstart", handleGesture);
+      document.removeEventListener("click", handleGesture);
+      document.removeEventListener("touchend", handleGesture);
+      document.removeEventListener("keydown", handleGesture);
     };
 
     if (!isMuted) {
@@ -128,8 +131,10 @@ function App() {
       const playAudio = () => {
         if (audio) {
           audio.play().catch(() => {
-            window.addEventListener("click", handleGesture);
-            window.addEventListener("touchstart", handleGesture);
+            // Listen on the document to capture gestures across all elements on mobile/desktop
+            document.addEventListener("click", handleGesture);
+            document.addEventListener("touchend", handleGesture);
+            document.addEventListener("keydown", handleGesture);
           });
         }
       };
