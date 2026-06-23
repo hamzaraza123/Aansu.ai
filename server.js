@@ -366,6 +366,11 @@ app.post("/api/generate", elegyLimiter, async (req, res) => {
   }
 });
 
+// GET /api/health: Lightweight health check endpoint to prevent cold starts and verify server status
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date() });
+});
+
 // GET /api/feed: Retrieves latest tragedies with pagination support
 app.get("/api/feed", async (req, res) => {
   const page = parseInt(req.query.page) || 1;
