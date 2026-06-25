@@ -32,11 +32,37 @@ export interface PoemGenerationResponse {
  * Clean and structure LLM response to verify it matches a 4-line format.
  */
 function sanitizePoem(rawPoem: string): string {
-  // Split into lines, trim, and filter out empty lines or XML remnants
   const lines = rawPoem
     .split(/\r?\n/)
     .map(line => line.trim())
-    .filter(line => line.length > 0 && !line.startsWith("<") && !line.endsWith(">"));
+    // Strip surrounding asterisks (markdown bold/italic markers)
+    .map(line => line.replace(/^\*+\s*/, "").replace(/\*+$/, "").trim())
+    .filter(line => {
+      if (line.length === 0) return false;
+      
+      // Filter out XML tag indicators
+      if (line.startsWith("<") && line.endsWith(">")) return false;
+      
+      const lower = line.toLowerCase();
+      
+      // Filter out markdown headers
+      if (line.startsWith("#")) return false;
+      
+      // Filter out lines that end with a colon (typically a label or prompt introduction)
+      if (line.endsWith(":")) return false;
+      
+      // Filter out common labels
+      if (lower.startsWith("line ") && lower.includes(":")) return false;
+      if (lower.startsWith("ruba'i") || lower.startsWith("rubai")) return false;
+      
+      // Filter out conversational introductions or notes
+      if (lower.startsWith("here is") || lower.startsWith("here's")) return false;
+      if (lower.startsWith("sure,") || lower.startsWith("of course")) return false;
+      if (lower.includes("translation") || lower.includes("meaning:")) return false;
+      if (lower.startsWith("marsiya") && (lower.includes("about") || lower.includes("for"))) return false;
+      
+      return true;
+    });
 
   // If we don't get exactly 4 lines, try to adapt, or fallback
   if (lines.length >= 4) {
@@ -58,7 +84,7 @@ export async function generateMarsiya(
   preferredProvider: "gemini" | "groq" = "gemini"
 ): Promise<PoemGenerationResponse> {
   // 1. Validation & Safety Filter
-  if (!inconvenience || inconvenience.trim().length < 3) {
+  if (!inconvenience || inconvenience.trim().length < 10) {
     return {
       success: false,
       poem: "",

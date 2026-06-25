@@ -130,6 +130,8 @@ const elegyLimiter = rateLimit({
 
 // Load soul.md and banned_words.txt on startup
 let soulPrompt = "";
+let systemInstructions = "";
+let userMessageTemplate = "";
 let profanityBlacklist = [];
 
 try {
@@ -143,6 +145,16 @@ Write exactly one 4-line Marsiya in Roman Urdu about this inconvenience. Do not 
 <user_inconvenience>
 {{INCONVENIENCE}}
 </user_inconvenience>`;
+}
+
+// Split into systemInstructions and userMessageTemplate for cleaner role separation
+const tagIndex = soulPrompt.indexOf("<user_inconvenience>");
+if (tagIndex !== -1) {
+  systemInstructions = soulPrompt.substring(0, tagIndex).trim();
+  userMessageTemplate = soulPrompt.substring(tagIndex).trim();
+} else {
+  systemInstructions = soulPrompt.trim();
+  userMessageTemplate = `<user_inconvenience>\n{{INCONVENIENCE}}\n</user_inconvenience>`;
 }
 
 const envBannedWords = process.env.BANNED_WORDS;
@@ -211,7 +223,34 @@ function sanitizePoem(rawPoem) {
   const lines = rawPoem
     .split(/\r?\n/)
     .map(line => line.trim())
-    .filter(line => line.length > 0 && !line.startsWith("<") && !line.endsWith(">"));
+    // Strip surrounding asterisks (markdown bold/italic markers)
+    .map(line => line.replace(/^\*+\s*/, "").replace(/\*+$/, "").trim())
+    .filter(line => {
+      if (line.length === 0) return false;
+      
+      // Filter out XML tag indicators
+      if (line.startsWith("<") && line.endsWith(">")) return false;
+      
+      const lower = line.toLowerCase();
+      
+      // Filter out markdown headers
+      if (line.startsWith("#")) return false;
+      
+      // Filter out lines that end with a colon (typically a label or prompt introduction)
+      if (line.endsWith(":")) return false;
+      
+      // Filter out common labels
+      if (lower.startsWith("line ") && lower.includes(":")) return false;
+      if (lower.startsWith("ruba'i") || lower.startsWith("rubai")) return false;
+      
+      // Filter out conversational introductions or notes
+      if (lower.startsWith("here is") || lower.startsWith("here's")) return false;
+      if (lower.startsWith("sure,") || lower.startsWith("of course")) return false;
+      if (lower.includes("translation") || lower.includes("meaning:")) return false;
+      if (lower.startsWith("marsiya") && (lower.includes("about") || lower.includes("for"))) return false;
+      
+      return true;
+    });
 
   if (lines.length >= 4) {
     return lines.slice(0, 4).join("\n");
@@ -220,7 +259,7 @@ function sanitizePoem(rawPoem) {
 }
 
 // Secure API endpoint for Marsiya elegy generation
-async function generateWithGemini(prompt, geminiKey) {
+async function generateWithGemini(systemInstructions, userMessage, geminiKey) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`;
   let response;
   let retries = 3;
@@ -231,7 +270,8 @@ async function generateWithGemini(prompt, geminiKey) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
+        contents: [{ role: "user", parts: [{ text: userMessage }] }],
+        systemInstruction: { parts: [{ text: systemInstructions }] },
         generationConfig: { temperature: 0.7, maxOutputTokens: 2000 }
       })
     });
@@ -258,7 +298,7 @@ async function generateWithGemini(prompt, geminiKey) {
   return text;
 }
 
-async function generateWithGroq(prompt, groqKey) {
+async function generateWithGroq(systemInstructions, userMessage, groqKey) {
   const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -268,7 +308,8 @@ async function generateWithGroq(prompt, groqKey) {
     body: JSON.stringify({
       model: "llama-3.1-8b-instant",
       messages: [
-        { role: "user", content: prompt }
+        { role: "system", content: systemInstructions },
+        { role: "user", content: userMessage }
       ],
       temperature: 0.75,
       max_tokens: 400
@@ -292,7 +333,7 @@ app.post("/api/generate", elegyLimiter, async (req, res) => {
   const { inconvenience, provider } = req.body;
 
   // 1. Validation & Safety Checks
-  if (!inconvenience || inconvenience.trim().length < 3) {
+  if (!inconvenience || inconvenience.trim().length < 10) {
     return res.status(400).json({
       success: false,
       error: "Sitam ka zikr toh kijiye! (Provide an inconvenience of at least 10 characters.)"
@@ -320,20 +361,20 @@ app.post("/api/generate", elegyLimiter, async (req, res) => {
   try {
     let rawPoem = "";
     
-    // Inject user inconvenience into the soul.md prompt
-    const prompt = soulPrompt.replace("{{INCONVENIENCE}}", inconvenience);
+    // Inject user inconvenience into the user message template
+    const userMessage = userMessageTemplate.replace("{{INCONVENIENCE}}", inconvenience);
 
     if (selectedProvider === "gemini") {
       try {
         if (!geminiKey) {
           throw new Error("GEMINI_API_KEY is not configured.");
         }
-        rawPoem = await generateWithGemini(prompt, geminiKey);
+        rawPoem = await generateWithGemini(systemInstructions, userMessage, geminiKey);
       } catch (geminiError) {
         console.warn("Gemini generation failed, checking for Groq fallback:", geminiError.message);
         if (groqKey) {
           console.log("Gemini failed. Initiating automatic fallback to Groq...");
-          rawPoem = await generateWithGroq(prompt, groqKey);
+          rawPoem = await generateWithGroq(systemInstructions, userMessage, groqKey);
         } else {
           throw geminiError;
         }
@@ -343,7 +384,7 @@ app.post("/api/generate", elegyLimiter, async (req, res) => {
       if (!groqKey) {
         throw new Error("GROQ_API_KEY is not configured on the server environment.");
       }
-      rawPoem = await generateWithGroq(prompt, groqKey);
+      rawPoem = await generateWithGroq(systemInstructions, userMessage, groqKey);
     }
 
     if (!rawPoem) {

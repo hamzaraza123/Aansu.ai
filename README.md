@@ -77,10 +77,10 @@ In a world that demands constant productivity and optimism, Aansu.ai provides a 
 
 ## 🧩 Architectural Techniques
 
-### The Soul Prompt (`soul.md`)
-To prevent prompt leakages and keep the frontend bundle clean, the AI's core persona instructions are isolated in a server-side file called `soul.md`. 
-* On backend startup, the server reads `soul.md` once and stores it in memory.
-* When a generation request arrives, the server replaces `{{INCONVENIENCE}}` with the user's input, keeping the system prompt invisible to the client.
+### The Soul Prompt (`soul.md`) & System Instruction Separation
+To prevent prompt leakages, optimize formatting, and keep the frontend bundle clean, the AI's core persona instructions are isolated in a server-side file called `soul.md`.
+* **Dynamic Role Separation:** On backend startup, the server reads `soul.md` once and splits it into `systemInstructions` (guidelines, persona rules, and examples) and a `userMessageTemplate` (the XML wrapper).
+* **Natively Structured Prompts:** When a generation request arrives, the server substitutes the user's input into the template. The instructions are passed natively to the LLMs as system instructions (`systemInstruction` in Gemini and `{ role: "system" }` in Groq), and the user's input is passed as a separate user message. This separation drastically reduces prompt-injection risks and ensures strict alignment with formatting rules.
 
 ### Secure Backend Proxy
 The frontend has no direct access to the LLM APIs or credentials. All generation requests are sent to `/api/generate` on the backend. This ensures your **`GEMINI_API_KEY`** and **`GROQ_API_KEY`** remain secure in your server environment variables and are never exposed to the client bundle.
